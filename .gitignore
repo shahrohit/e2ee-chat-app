@@ -1,0 +1,15 @@
+### General ###
+.DS_Store
+*.log
+*.env
+node_modules/
+dist/
+build/
+coverage/
+.vscode/
+.idea/
+*.iml
+*.swp
+*.bak
+*.tmp
+*.swo
