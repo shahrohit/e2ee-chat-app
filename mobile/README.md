@@ -1,1 +1,1 @@
-# E2EE Chat App Andriod App
+# E2EE Andriod Chat App
