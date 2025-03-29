@@ -5,8 +5,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,6 +55,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    private boolean enabled = false;
+
     private String profilePictureUrl;
 
     @Column(nullable = false, updatable = false)
@@ -67,5 +73,15 @@ public class User {
     @PreUpdate
     protected void onUpdate(){
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(role);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
     }
 }
