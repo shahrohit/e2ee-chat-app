@@ -8,7 +8,7 @@ import com.shahrohit.chat.services.OtpService;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import utils.OtpGenerator;
+import com.shahrohit.chat.utils.OtpGenerator;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

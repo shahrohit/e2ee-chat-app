@@ -1,4 +1,4 @@
-package utils;
+package com.shahrohit.chat.utils;
 
 import java.security.SecureRandom;
 
