@@ -6,6 +6,7 @@ import com.shahrohit.chat.repositories.OtpRepository;
 import com.shahrohit.chat.services.OtpSender;
 import com.shahrohit.chat.services.OtpService;
 import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import utils.OtpGenerator;
 
@@ -64,5 +65,13 @@ public class OtpServiceImpl implements OtpService {
 
         otpRepository.delete(otpEntity);
         return true;
+    }
+
+    @Scheduled(fixedRate = 600000) // Runs every 10 minutes (600,000 ms)
+    private void cleanupExpiredOtp() {
+        int deletedCount = otpRepository.deleteByExpiresAtBefore(LocalDateTime.now());
+        if (deletedCount > 0) {
+            System.out.println("✅ Deleted " + deletedCount + " expired OTPs");
+        }
     }
 }
