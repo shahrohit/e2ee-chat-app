@@ -1,8 +1,9 @@
 package com.shahrohit.chat.services;
 
-import com.shahrohit.chat.models.User;
+import com.shahrohit.chat.dtos.RegisterRequest;
 
 
 public interface AuthService {
-    User registerUser(User user);
+    String registerUser(RegisterRequest user);
+    String verifyOtp(String username, String otp);
 }
