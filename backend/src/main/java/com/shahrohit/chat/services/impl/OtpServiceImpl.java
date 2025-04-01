@@ -1,6 +1,7 @@
 package com.shahrohit.chat.services.impl;
 
 import com.shahrohit.chat.models.OtpEntity;
+import com.shahrohit.chat.enums.OtpType;
 import com.shahrohit.chat.models.User;
 import com.shahrohit.chat.repositories.OtpRepository;
 import com.shahrohit.chat.services.OtpSender;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import com.shahrohit.chat.utils.OtpGenerator;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,50 +21,32 @@ public class OtpServiceImpl implements OtpService {
     private final OtpRepository otpRepository;
 
     @Override
-    public void sendOtp(User user) {
+    public void sendOtp(User user, OtpType type) {
+        otpRepository.findByUser(user).ifPresent(otpRepository::delete);
 
-        Optional<OtpEntity> existingOtp = otpRepository.findByUser(user);
-        if(existingOtp.isPresent()){
-            OtpEntity otpEntity = existingOtp.get();
-            if(otpEntity.getExpiresAt().isAfter(LocalDateTime.now())){
-               // TODO: Implement Custom Exception
-                throw new IllegalStateException("Otp already Send. Please Wait till it expires");
-            } else{
-                otpRepository.delete(otpEntity);
-            }
-        }
-
-        String otp = OtpGenerator.generateOtp();
+        String otpCode = OtpGenerator.generateOtp();
 
         OtpEntity otpEntity = OtpEntity.builder()
-            .otp(otp)
+            .otp(otpCode)
             .user(user)
+            .type(type)
             .expiresAt(LocalDateTime.now().plusMinutes(5))
             .build();
 
         otpRepository.save(otpEntity);
-        otpSender.sendOtp(user.getEmail(), otp);
+        otpSender.sendOtp(user.getEmail(), otpCode);
     }
 
     @Override
-    public boolean verifyOtp(User user, String otp) {
-        // TODO: Implement Custom Exception
-        OtpEntity otpEntity = otpRepository.findByUser(user)
-            .orElseThrow(() -> new IllegalStateException("No OTP Found"));
-
-        if(!otpEntity.getOtp().equals(otp)){
-            // TODO: Implement Custom Exception
-            throw new IllegalArgumentException("Invalid OTP");
-        }
-
-        if(otpEntity.getExpiresAt().isBefore(LocalDateTime.now())){
-            otpRepository.delete(otpEntity);
-            // TODO: Implement Custom Exception
-            throw new IllegalArgumentException("OTP has expired. Request a new one.");
-        }
-
-        otpRepository.delete(otpEntity);
-        return true;
+    public boolean verifyOtp(User user, String otpCode, OtpType type) {
+        return otpRepository.findByUser(user)
+            .filter(otp -> otp.getType().equals(type) && otp.getOtp().equals(otpCode) && otp.getExpiresAt().isAfter(LocalDateTime.now()))
+            .map(otp -> {
+                otpRepository.delete(otp);
+                user.setEnabled(true);
+                return true;
+            })
+            .orElse(false);
     }
 
     @Scheduled(fixedRate = 600000) // Runs every 10 minutes (600,000 ms)
