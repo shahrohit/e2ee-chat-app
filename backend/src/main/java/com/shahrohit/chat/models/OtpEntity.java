@@ -1,5 +1,6 @@
 package com.shahrohit.chat.models;
 
+import com.shahrohit.chat.enums.OtpType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -25,6 +26,10 @@ public class OtpEntity {
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private OtpType type;
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;
