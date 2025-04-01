@@ -14,4 +14,7 @@ public class VerifyOtpRequest {
     @NotBlank(message = "OTP is required")
     @Size(min = 6, max = 6, message = "Invalid OTP")
     String otp;
+
+    @NotBlank(message = "Device is Required")
+    private String deviceFingerprint;
 }
