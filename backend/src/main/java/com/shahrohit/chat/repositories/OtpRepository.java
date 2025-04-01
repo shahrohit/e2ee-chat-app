@@ -11,6 +11,8 @@ import java.util.Optional;
 public interface OtpRepository extends JpaRepository<OtpEntity, Long> {
     Optional<OtpEntity> findByUser(User user);
 
+    void deleteByUser(User user);
+
     @Transactional
     int deleteByExpiresAtBefore(LocalDateTime time);
 }
