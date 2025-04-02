@@ -15,7 +15,9 @@ import com.shahrohit.chat.services.OtpService;
 import com.shahrohit.chat.services.SessionService;
 import com.shahrohit.chat.services.TokenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -27,9 +29,9 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final UserAdapter userAdapter;
     private final OtpService otpService;
-    private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
     private final SessionService sessionService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public AuthResponse registerUser(RegisterRequest body) {
@@ -43,7 +45,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User newUser = userAdapter.toUser(body);
-        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userRepository.save(newUser);
 
         otpService.sendOtp(newUser, OtpType.NEW_ACCOUNT_VERIFICATION);
@@ -93,12 +94,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmailOrUsername(request.getIdentifier(), request.getIdentifier())
-            .orElseThrow(() -> new RuntimeException("User not Found"));
+        Authentication auth = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.getIdentifier(), request.getPassword())
+        );
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if(!auth.isAuthenticated()){
             throw new RuntimeException("Invalid Credentials");
         }
+
+        User user = (User) auth.getPrincipal();
 
         if(!user.isEnabled()){
             otpService.sendOtp(user, OtpType.NEW_ACCOUNT_VERIFICATION);
