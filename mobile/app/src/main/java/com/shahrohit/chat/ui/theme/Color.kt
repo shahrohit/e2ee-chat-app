@@ -9,7 +9,7 @@ val Background = Color(0xFFF5F5F5)   // Light Gray
 val Surface = Color(0xFFFFFFFF)      // White
 val OnPrimary = Color(0xFFFFFFFF)    // White Text on Primary
 val OnSecondary = Color(0xFF000000)  // Black Text on Secondary
-val TextColor = Color(0xFF212121)    // Dark Text
+val onBackground = Color(0xFF212121) // Dark Text
 
 // Dark Theme Colors
 val DarkPrimary = Color(0xFF0D47A1)  // Dark Blue

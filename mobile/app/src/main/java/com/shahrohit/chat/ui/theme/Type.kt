@@ -19,7 +19,7 @@ val AppTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = PlusJakartaSans,
         fontSize = 16.sp,
-        fontWeight = FontWeight.Normal
+        fontWeight = FontWeight.Medium
     ),
     titleLarge = TextStyle(
         fontFamily = PlusJakartaSans,
