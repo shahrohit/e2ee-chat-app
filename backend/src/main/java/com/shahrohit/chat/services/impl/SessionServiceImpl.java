@@ -33,4 +33,9 @@ public class SessionServiceImpl implements SessionService {
 
         sessionRepository.save(session);
     }
+
+    @Override
+    public Optional<Session> getSessionFromRefreshToken(String refreshToken) {
+        return sessionRepository.findByRefreshToken(refreshToken);
+    }
 }

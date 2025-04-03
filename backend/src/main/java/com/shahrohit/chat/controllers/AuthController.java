@@ -1,9 +1,6 @@
 package com.shahrohit.chat.controllers;
 
-import com.shahrohit.chat.dtos.AuthResponse;
-import com.shahrohit.chat.dtos.LoginRequest;
-import com.shahrohit.chat.dtos.RegisterRequest;
-import com.shahrohit.chat.dtos.VerifyOtpRequest;
+import com.shahrohit.chat.dtos.*;
 import com.shahrohit.chat.services.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +31,10 @@ public class AuthController {
     @PostMapping("/verify-device")
     public AuthResponse verifyDevice(@Valid @RequestBody VerifyOtpRequest body){
         return authService.verifyNewDevice(body);
+    }
+
+    @PostMapping("/refresh-token")
+    public AuthResponse refreshAccessToken(@Valid @RequestBody AccessTokenRequest body){
+        return authService.refreshAccessToken(body);
     }
 }

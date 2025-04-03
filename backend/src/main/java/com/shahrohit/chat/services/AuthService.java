@@ -1,9 +1,6 @@
 package com.shahrohit.chat.services;
 
-import com.shahrohit.chat.dtos.LoginRequest;
-import com.shahrohit.chat.dtos.AuthResponse;
-import com.shahrohit.chat.dtos.RegisterRequest;
-import com.shahrohit.chat.dtos.VerifyOtpRequest;
+import com.shahrohit.chat.dtos.*;
 
 
 public interface AuthService {
@@ -11,4 +8,5 @@ public interface AuthService {
     AuthResponse verifyOtp(VerifyOtpRequest request);
     AuthResponse login(LoginRequest request);
     AuthResponse verifyNewDevice(VerifyOtpRequest request);
+    AuthResponse refreshAccessToken(AccessTokenRequest request);
 }

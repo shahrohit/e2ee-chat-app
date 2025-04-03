@@ -1,10 +1,7 @@
 package com.shahrohit.chat.services.impl;
 
 import com.shahrohit.chat.adapters.UserAdapter;
-import com.shahrohit.chat.dtos.LoginRequest;
-import com.shahrohit.chat.dtos.AuthResponse;
-import com.shahrohit.chat.dtos.RegisterRequest;
-import com.shahrohit.chat.dtos.VerifyOtpRequest;
+import com.shahrohit.chat.dtos.*;
 import com.shahrohit.chat.enums.AuthStatus;
 import com.shahrohit.chat.enums.OtpType;
 import com.shahrohit.chat.models.Session;
@@ -171,6 +168,30 @@ public class AuthServiceImpl implements AuthService {
             .refreshToken(refreshToken)
             .user(userAdapter.toUserDto(user))
             .message(AuthStatus.DEVICE_VERIFIED.toString())
+            .build();
+    }
+
+    @Override
+    public AuthResponse refreshAccessToken(AccessTokenRequest request) {
+       Session session = sessionService.getSessionFromRefreshToken(request.getRefreshToken())
+           .orElseThrow(() -> new RuntimeException("Unauthorized: Invalid Token"));
+
+       if(!session.getDeviceFingerprint().equals(request.getDeviceFingerprint())){
+           throw new RuntimeException("Unauthorized: Invalid Request");
+       }
+
+       User user = session.getUser();
+       String accessToken = tokenService.generateAccessToken(user.getUsername());
+       String refreshToken = tokenService.generateRefreshToken();
+
+       sessionService.createSession(user, refreshToken, request.getDeviceFingerprint());
+
+
+        return AuthResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .user(userAdapter.toUserDto(user))
+            .message(AuthStatus.USER_VERIFIED.toString())
             .build();
     }
 }
