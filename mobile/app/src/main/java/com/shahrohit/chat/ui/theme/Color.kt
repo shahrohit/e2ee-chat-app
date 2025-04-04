@@ -2,18 +2,28 @@ package com.shahrohit.chat.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light Color Theme
-val Primary = Color(0xFF1E88E5)      // Blue
-val Secondary = Color(0xFF42A5F5)    // Light Blue
-val Background = Color(0xFFF5F5F5)   // Light Gray
-val Surface = Color(0xFFFFFFFF)      // White
-val OnPrimary = Color(0xFFFFFFFF)    // White Text on Primary
-val OnSecondary = Color(0xFF000000)  // Black Text on Secondary
-val onBackground = Color(0xFF212121) // Dark Text
+// Light Mode Color
+val Primary = Color(0xFF1A75FF)
+val OnPrimary = Color(0xFFFFFFFF)
 
-// Dark Theme Colors
-val DarkPrimary = Color(0xFF0D47A1)  // Dark Blue
-val DarkBackground = Color(0xFF121212) // Dark Gray
-val DarkSurface = Color(0xFF1E1E1E)  // Darker Gray
-val OnDarkPrimary = Color(0xFFFFFFFF) // White text on dark primary
-val OnDarkBackground = Color(0xFFE0E0E0) // Light gray text
+val Secondary = Color(0x501A75FF)
+val OnSecondary = Color(0xFF1A75FF)
+
+val Background = Color(0xFAEEEEEE)
+val OnBackground = Color(0xFF0D0D0D)
+
+val Surface = Color(0xFFE2E2E2)
+val OnSurface = Color(0xFF3C3C3C)
+
+// Dark Mode Color
+val DarkPrimary = Color(0xFF1A75FF)
+val DarkOnPrimary = Color(0xFFFFFFFF)
+
+val DarkSecondary = Color(0x501A75FF)
+val DarkOnSecondary = Color(0xFF1A75FF)
+
+val DarkBackground = Color(0xFF000000)
+val DarkOnBackground = Color(0xFFFAFAFA)
+
+val DarkSurface = Color(0xFF202020)
+val DarkOnSurface = Color(0xFFD3D3D3)
