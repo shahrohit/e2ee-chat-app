@@ -70,4 +70,5 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.9")
     implementation("androidx.compose.material3:material3:1.3.1")
     implementation("com.google.accompanist:accompanist-pager:0.36.0") // For swipe able pages
+    implementation("androidx.security:security-crypto:1.0.0")
 }

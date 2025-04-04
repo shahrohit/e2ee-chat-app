@@ -11,10 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.shahrohit.chat.navigation.AppNavigation
 import com.shahrohit.chat.ui.theme.AppTheme
+import com.shahrohit.chat.utils.PreferenceManager
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        PreferenceManager.init(this)
         enableEdgeToEdge()
         setContent {
             AppTheme {

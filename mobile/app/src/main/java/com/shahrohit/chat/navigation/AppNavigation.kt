@@ -7,10 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.shahrohit.chat.presentation.login.LoginScreen
 import com.shahrohit.chat.presentation.onboarding.OnboardingScreen
+import com.shahrohit.chat.utils.PreferenceManager
 
 @Composable
 fun AppNavigation (navController: NavHostController, modifier: Modifier){
-    val startDestination = "onboarding"
+    val startDestination = if(PreferenceManager.isOnBoardingCompleted()) Screen.Login.route else Screen.Onboarding.route;
 
     NavHost(navController = navController, startDestination = startDestination, modifier = modifier){
         composable(Screen.Onboarding.route) { OnboardingScreen(navController) }
