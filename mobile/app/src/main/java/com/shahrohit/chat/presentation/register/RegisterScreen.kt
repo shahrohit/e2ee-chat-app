@@ -1,4 +1,4 @@
-package com.shahrohit.chat.presentation.login
+package com.shahrohit.chat.presentation.register
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.scrollBy
@@ -25,7 +25,7 @@ import com.shahrohit.chat.R
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController : NavController) {
+fun RegisterScreen(navController: NavController) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
     val keyboardHeight = WindowInsets.ime.getBottom(LocalDensity.current)
@@ -45,20 +45,16 @@ fun LoginScreen(navController : NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
 
 
-    ) {
+        ) {
         Spacer(modifier = Modifier.height(20.dp))
-        LoginHeader()
+        RegisterHeader()
 
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(50.dp))
         Image(painter = painterResource(id = R.drawable.logo), contentDescription = "logo")
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(50.dp))
 
-        LoginBody(navController)
-        Spacer(modifier = Modifier.height(20.dp))
+        RegisterBody(navController)
 
-        LoginFooter(navController)
+        RegisterFooter(navController)
     }
-
 }
-
-
