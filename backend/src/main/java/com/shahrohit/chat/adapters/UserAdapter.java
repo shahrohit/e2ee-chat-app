@@ -3,10 +3,15 @@ package com.shahrohit.chat.adapters;
 import com.shahrohit.chat.dtos.RegisterRequest;
 import com.shahrohit.chat.dtos.UserDto;
 import com.shahrohit.chat.models.User;
+import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class UserAdapter {
+
+    private final PasswordEncoder passwordEncoder;
 
     public User toUser(RegisterRequest request){
         return User.builder()
@@ -15,7 +20,7 @@ public class UserAdapter {
             .about(request.getAbout())
             .username(request.getUsername())
             .email(request.getEmail())
-            .password(request.getPassword())
+            .password(passwordEncoder.encode(request.getPassword()))
             .enabled(false)
             .build();
     }

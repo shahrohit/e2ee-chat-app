@@ -26,7 +26,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     public boolean isTokenValid(String token, String username){
-        return jwtUtil.isTokenValid(token) && username.equals(extractUsername(token));
+        return jwtUtil.isTokenValid(token,username);
     }
 
 }
