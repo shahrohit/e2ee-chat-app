@@ -12,7 +12,10 @@ import androidx.navigation.compose.rememberNavController
 import com.shahrohit.chat.navigation.AppNavigation
 import com.shahrohit.chat.ui.theme.AppTheme
 import com.shahrohit.chat.utils.PreferenceManager
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.HiltAndroidApp
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

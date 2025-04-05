@@ -1,98 +1,87 @@
 package com.shahrohit.chat.presentation.login
 
-import android.annotation.SuppressLint
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.shahrohit.chat.navigation.Screen
 import com.shahrohit.chat.presentation.common.AppTextField
+import com.shahrohit.chat.presentation.common.AppTextFieldError
+import com.shahrohit.chat.presentation.common.ProgressButton
+import com.shahrohit.chat.presentation.common.showToast
+import com.shahrohit.chat.utils.ApiRequestState
+import com.shahrohit.chat.viewmodels.LoginViewModel
 
-@SuppressLint("ShowToast")
 @Composable
-fun LoginBody( navController: NavController) {
-    // **************** State *****************
-    val context = LocalContext.current
-    var email  by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+fun LoginBody(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
 
-    // **************** Functions *****************
-    fun onLogin(){
-        if(email.isEmpty()){
-            Toast.makeText(context, "Email is Empty", Toast.LENGTH_SHORT).show()
-        } else if(password.isEmpty()){
-            Toast.makeText(context, "Password is Required", Toast.LENGTH_SHORT).show()
-        }else{
-            Toast.makeText(context, "Login As $email", Toast.LENGTH_SHORT).show()
-            navController.navigate(Screen.Home.route){
-                popUpTo(Screen.Login.route){ inclusive = true }
+    val context = LocalContext.current
+    val loginState by viewModel.loginState
+
+    LaunchedEffect(loginState) {
+        when (val currentState = loginState) {
+            is ApiRequestState.Success -> {
+                showToast(context,  currentState.data.message)
             }
+            is ApiRequestState.Error -> showToast(context, currentState.message)
+            else -> {}
         }
     }
 
-    // ***************** UI ***********************
     Column {
-
         AppTextField(
-            value = email,
-            onChange = {email = it},
+            value = viewModel.identifier,
+            onChange = viewModel::onIdentifierChanged,
             modifier = Modifier.fillMaxWidth(),
             placeholder = "Username or Email Address",
             keyboardType = KeyboardType.Email,
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null)
-            },
+            leadingIcon = { Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null) },
         )
+        viewModel.identifierError?.let { AppTextFieldError(text = it) }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         AppTextField(
-            value = password,
-            onChange = {password = it},
+            value = viewModel.password,
+            onChange = viewModel::onPasswordChanged,
             placeholder = "Password",
             modifier = Modifier.fillMaxWidth(),
             keyboardType = KeyboardType.Password,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = if (viewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = null) },
             trailingIcon = {
-                val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                val icon = if (viewModel.passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                IconButton(onClick = viewModel::changePasswordVisibility) {
                     Icon(imageVector = icon, contentDescription = null)
                 }
-            },
-            leadingIcon = {
-                Icon(imageVector = Icons.Default.Lock, contentDescription = null)
             },
             isLastField = true
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = { onLogin() }, modifier = Modifier.fillMaxWidth().height(50.dp)) {
-            Text(text = "Login")
-        }
+        ProgressButton(
+            text = "Login",
+            onClick = viewModel::login,
+            modifier = Modifier.fillMaxWidth().height(50.dp),
+            loading = loginState == ApiRequestState.Loading
+        )
     }
 }

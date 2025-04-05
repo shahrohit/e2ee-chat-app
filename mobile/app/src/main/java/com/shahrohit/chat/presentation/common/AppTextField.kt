@@ -28,7 +28,7 @@ fun AppTextField(
     trailingIcon : @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isLastField : Boolean = false,
-    capitalize : Boolean = false
+    keyboardCapitalization : KeyboardCapitalization = KeyboardCapitalization.None
 ) {
 
     OutlinedTextField(
@@ -39,7 +39,7 @@ fun AppTextField(
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType,
             imeAction = if (isLastField) ImeAction.Done else  ImeAction.Next,
-            capitalization = if (capitalize) KeyboardCapitalization.Sentences else KeyboardCapitalization.None
+            capitalization = keyboardCapitalization
         ),
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
