@@ -4,6 +4,9 @@ import com.shahrohit.chat.adapters.UserAdapter;
 import com.shahrohit.chat.dtos.*;
 import com.shahrohit.chat.enums.AuthStatus;
 import com.shahrohit.chat.enums.OtpType;
+import com.shahrohit.chat.exceptions.Conflict;
+import com.shahrohit.chat.exceptions.Forbidden;
+import com.shahrohit.chat.exceptions.NotFound;
 import com.shahrohit.chat.models.Session;
 import com.shahrohit.chat.models.User;
 import com.shahrohit.chat.repositories.UserRepository;
@@ -12,9 +15,7 @@ import com.shahrohit.chat.services.OtpService;
 import com.shahrohit.chat.services.SessionService;
 import com.shahrohit.chat.services.TokenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,20 +29,20 @@ public class AuthServiceImpl implements AuthService {
     private final OtpService otpService;
     private final TokenService tokenService;
     private final SessionService sessionService;
-    private final AuthenticationManager authenticationManager;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AuthResponse registerUser(RegisterRequest body) {
-
         if(userRepository.existsByEmail(body.getEmail())){
-            throw new RuntimeException("Email is Already Taken");
+            throw new Conflict("Email is Already Taken");
         }
 
         if(userRepository.existsByUsername(body.getUsername())){
-            throw new RuntimeException("Username is Already Taken");
+            throw new Conflict("Username is Already Taken");
         }
 
         User newUser = userAdapter.toUser(body);
+        newUser.setPassword(passwordEncoder.encode(body.getPassword()));
         userRepository.save(newUser);
 
         otpService.sendOtp(newUser, OtpType.NEW_ACCOUNT_VERIFICATION);
@@ -91,15 +92,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        Authentication auth = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getIdentifier(), request.getPassword())
-        );
+        User user = userRepository.findByEmailOrUsername(request.getIdentifier(), request.getIdentifier())
+            .orElseThrow(() -> new Forbidden("Invalid Credentials"));
 
-        if(!auth.isAuthenticated()){
-            throw new RuntimeException("Invalid Credentials");
+        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+            throw new Forbidden("Invalid Credentials");
         }
-
-        User user = (User) auth.getPrincipal();
 
         if(!user.isEnabled()){
             otpService.sendOtp(user, OtpType.NEW_ACCOUNT_VERIFICATION);
@@ -143,7 +141,7 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse verifyNewDevice(VerifyOtpRequest request) {
         Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
         if(userOptional.isEmpty()){
-            throw new RuntimeException("User Not Found");
+            throw new NotFound("User Not Found");
         }
 
         User user = userOptional.get();
@@ -169,6 +167,11 @@ public class AuthServiceImpl implements AuthService {
             .user(userAdapter.toUserDto(user))
             .message(AuthStatus.DEVICE_VERIFIED.toString())
             .build();
+    }
+
+    @Override
+    public boolean checkUsernameAvailable(String username) {
+        return userRepository.findByUsername(username).isEmpty();
     }
 
     @Override

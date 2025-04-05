@@ -28,12 +28,7 @@ public class User implements UserDetails {
     @NotBlank(message = "First name is required")
     @Size(min = 2, message = "Minimum 2 characters long")
     @Column(nullable = false)
-    private String firstName;
-
-    @NotBlank(message = "Last name is required")
-    @Size(min = 2, message = "Minimum 2 characters long")
-    @Column(nullable = false)
-    private String lastName;
+    private String name;
 
     @Size(max = 500, message = "About must be less than 500 characters")
     private String about;

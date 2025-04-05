@@ -9,4 +9,5 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
     AuthResponse verifyNewDevice(VerifyOtpRequest request);
     AuthResponse refreshAccessToken(AccessTokenRequest request);
+    boolean checkUsernameAvailable(String username);
 }
