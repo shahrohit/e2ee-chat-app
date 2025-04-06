@@ -22,6 +22,7 @@ public class UserAdapter {
 
     public UserDto toUserDto(User user){
         return UserDto.builder()
+            .userId(user.getId())
             .name(user.getName())
             .about(user.getAbout())
             .email(user.getEmail())

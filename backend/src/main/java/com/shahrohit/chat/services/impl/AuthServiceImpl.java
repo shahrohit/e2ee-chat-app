@@ -4,6 +4,7 @@ import com.shahrohit.chat.adapters.UserAdapter;
 import com.shahrohit.chat.dtos.*;
 import com.shahrohit.chat.enums.AuthStatus;
 import com.shahrohit.chat.enums.OtpType;
+import com.shahrohit.chat.exceptions.BadRequest;
 import com.shahrohit.chat.exceptions.Conflict;
 import com.shahrohit.chat.exceptions.Forbidden;
 import com.shahrohit.chat.exceptions.NotFound;
@@ -59,19 +60,19 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse verifyOtp(VerifyOtpRequest request) {
         Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
         if(userOptional.isEmpty()){
-            throw new RuntimeException("User Not Found");
+            throw new NotFound("User Not Found");
         }
 
         User user = userOptional.get();
 
         if(user.isEnabled()){
-            throw new RuntimeException("User Already Verified");
+            throw new Forbidden("User Already Verified");
         }
 
         boolean isVerified = otpService.verifyOtp(user,request.getOtp(), OtpType.NEW_ACCOUNT_VERIFICATION);
 
         if(!isVerified){
-            throw new RuntimeException("Invalid User or OTP");
+            throw new Forbidden("Invalid User or OTP");
         }
 
         user.setEnabled(true);
