@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
 
-object SecureTokenManager {
+object PreferenceManager {
 
     private const val PREF_NAME = "secure_prefs"
     private const val ONBOARDING_KEY = "onboarding_completed"

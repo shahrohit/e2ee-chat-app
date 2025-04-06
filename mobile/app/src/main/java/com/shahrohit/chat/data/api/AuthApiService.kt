@@ -4,6 +4,7 @@ import com.shahrohit.chat.data.dto.AuthResponse
 import com.shahrohit.chat.data.dto.LoginRequest
 import com.shahrohit.chat.data.dto.RegisterRequest
 import com.shahrohit.chat.data.dto.UserAvailabilityResponse
+import com.shahrohit.chat.data.dto.VerifyOtpRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -19,5 +20,8 @@ interface AuthApiService {
 
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest) : AuthResponse
+
+    @POST("auth/verify-otp")
+    suspend fun verifyOtp(@Body request: VerifyOtpRequest) : AuthResponse
 }
 

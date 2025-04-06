@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shahrohit.chat.data.dto.ApiException
+import com.shahrohit.chat.data.dto.AuthResponse
 import com.shahrohit.chat.data.dto.RegisterRequest
 import com.shahrohit.chat.domain.repository.AuthRepository
 import com.shahrohit.chat.utils.ApiRequestState
@@ -35,7 +36,7 @@ class RegisterViewModel @Inject constructor(
     var isUsernameAvailable by mutableStateOf<Boolean?>(null)
     var isCheckingUsername by mutableStateOf(false)
 
-    val registerState = mutableStateOf<ApiRequestState<String>>(ApiRequestState.Idle)
+    val registerState = mutableStateOf<ApiRequestState<AuthResponse>>(ApiRequestState.Idle)
 
     private var debounceJob: Job? = null
 
@@ -106,7 +107,7 @@ class RegisterViewModel @Inject constructor(
 
 
     fun register() {
-        if(!validate()) return;
+        if(!validate()) return
 
         viewModelScope.launch {
             registerState.value = ApiRequestState.Loading
@@ -115,7 +116,7 @@ class RegisterViewModel @Inject constructor(
                 val result = repository.register(request)
 
                 result.onSuccess { response ->
-                    registerState.value = ApiRequestState.Success(response.message)
+                    registerState.value = ApiRequestState.Success(response)
                 }.onFailure { errResponse ->
                     if(errResponse is ApiException){
                         val errorMap = errResponse.errorData.orEmpty()

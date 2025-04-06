@@ -5,6 +5,7 @@ import com.shahrohit.chat.data.dto.AuthResponse
 import com.shahrohit.chat.data.dto.LoginRequest
 import com.shahrohit.chat.data.dto.RegisterRequest
 import com.shahrohit.chat.data.dto.UserAvailabilityResponse
+import com.shahrohit.chat.data.dto.VerifyOtpRequest
 import com.shahrohit.chat.domain.repository.AuthRepository
 import com.shahrohit.chat.utils.ApiErrorHandler
 import retrofit2.HttpException
@@ -40,6 +41,17 @@ class AuthRepositoryImpl @Inject constructor(
         return try {
             val response = api.login(request)
             return Result.success(response)
+        } catch (e : HttpException){
+            Result.failure(ApiErrorHandler.parseHttpException(e))
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun verifyOtp(request: VerifyOtpRequest): Result<AuthResponse> {
+        return try {
+            val response = api.verifyOtp(request)
+            return Result.success(response);
         } catch (e : HttpException){
             Result.failure(ApiErrorHandler.parseHttpException(e))
         } catch (e: Exception){
