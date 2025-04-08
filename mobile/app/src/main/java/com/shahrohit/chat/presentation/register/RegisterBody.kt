@@ -1,6 +1,5 @@
 package com.shahrohit.chat.presentation.register
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,9 +32,11 @@ import androidx.navigation.NavController
 import com.shahrohit.chat.presentation.common.AppTextField
 import com.shahrohit.chat.presentation.common.AppTextFieldError
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.shahrohit.chat.enums.OtpFor
 import com.shahrohit.chat.navigation.Screen
 import com.shahrohit.chat.presentation.common.ProgressButton
 import com.shahrohit.chat.presentation.common.showToast
+import com.shahrohit.chat.remote.dto.User
 import com.shahrohit.chat.utils.ApiRequestState
 import com.shahrohit.chat.viewmodels.RegisterViewModel
 
@@ -44,14 +45,19 @@ fun RegisterBody(navController: NavController, viewModel: RegisterViewModel = hi
     val context = LocalContext.current
     val registerState by viewModel.registerState
 
+    fun handleSuccess(user : User, message : String){
+        navController.navigate(Screen.VerifyOtp.createRoute(user.email, user.username,OtpFor.USER.name))
+        showToast(context, message)
+    }
+
+    fun handleError(message : String){
+        showToast(context, message)
+    }
+
     LaunchedEffect(registerState) {
         when (val currentState = registerState) {
-            is ApiRequestState.Success -> {
-                Log.d("CONSOLE", "RegisterBody: ${currentState.data}")
-                navController.navigate(Screen.VerifyOtp.createRoute(currentState.data.user.email, currentState.data.user.username))
-                showToast(context, currentState.data.message)
-            }
-            is ApiRequestState.Error -> showToast(context, currentState.message)
+            is ApiRequestState.Success -> handleSuccess(currentState.data.user, currentState.data.message)
+            is ApiRequestState.Error -> handleError(currentState.message)
             else -> {}
         }
     }

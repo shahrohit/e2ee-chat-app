@@ -1,24 +1,29 @@
 package com.shahrohit.chat.viewmodels
 
-import android.util.Log
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shahrohit.chat.data.dto.AuthResponse
-import com.shahrohit.chat.data.dto.LoginRequest
-import com.shahrohit.chat.data.dto.VerifyOtpRequest
-import com.shahrohit.chat.domain.repository.AuthRepository
+import com.shahrohit.chat.enums.OtpFor
+import com.shahrohit.chat.local.adapters.toEntity
+import com.shahrohit.chat.local.repositories.LocalUserRepository
+import com.shahrohit.chat.remote.dto.AuthResponse
+import com.shahrohit.chat.remote.dto.VerifyOtpRequest
+import com.shahrohit.chat.remote.repository.AuthRepository
 import com.shahrohit.chat.utils.ApiRequestState
+import com.shahrohit.chat.utils.DeviceFingerprint
+import com.shahrohit.chat.utils.PreferenceManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class VerifyOtpViewModel @Inject constructor(
-    private val repository: AuthRepository
+    private val repository: AuthRepository,
+    private val userRepository: LocalUserRepository
 ) : ViewModel() {
 
     private val _otpDigits = mutableStateListOf("", "", "", "", "", "")
@@ -33,7 +38,18 @@ class VerifyOtpViewModel @Inject constructor(
         }
     }
 
-    fun verifyOtp(username : String){
+    private suspend fun handleSuccess(response: AuthResponse){
+        verifyOtpState.value = ApiRequestState.Success(response)
+        PreferenceManager.saveToken(response.accessToken, response.refreshToken)
+        PreferenceManager.setUserId(response.user.userId)
+        userRepository.saveUser(response.user.toEntity())
+    }
+
+    private fun handleFailure(errResponse: Throwable){
+        verifyOtpState.value = ApiRequestState.Error(errResponse.message ?: "OTP verification Failed")
+    }
+
+    fun verifyOtp(context: Context, username : String, otpFor : OtpFor){
         val otp = _otpDigits.joinToString("")
         if(otp.length != 6){
             errorMessage = "Enter 6-digit OTP"
@@ -46,17 +62,14 @@ class VerifyOtpViewModel @Inject constructor(
                 val request = VerifyOtpRequest(
                     username = username,
                     otp = otp,
-                    deviceFingerprint = "Redmi Note 9"
+                    deviceFingerprint = DeviceFingerprint.generate(context)
                 )
-                val result = repository.verifyOtp(request)
+                val result = repository.verifyOtp(request, otpFor)
 
-                result.onSuccess { response ->
-                    verifyOtpState.value = ApiRequestState.Success(response)
-                }.onFailure { errResponse ->
-                    verifyOtpState.value = ApiRequestState.Error(errResponse.message ?: "OTP verification Failed")
-                }
+                result.onSuccess { handleSuccess(it) }
+                result.onFailure { handleFailure(it) }
 
-            }catch (e: Exception){
+            }catch (_: Exception){
                 verifyOtpState.value = ApiRequestState.Error("Network Error")
 
             }

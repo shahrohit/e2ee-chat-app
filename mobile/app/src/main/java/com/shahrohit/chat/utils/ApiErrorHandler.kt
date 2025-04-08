@@ -1,8 +1,8 @@
 package com.shahrohit.chat.utils
 
 import com.google.gson.Gson
-import com.shahrohit.chat.data.dto.ApiException
-import com.shahrohit.chat.data.dto.ErrorResponse
+import com.shahrohit.chat.remote.dto.ApiException
+import com.shahrohit.chat.remote.dto.ErrorResponse
 import retrofit2.HttpException
 
 object ApiErrorHandler {

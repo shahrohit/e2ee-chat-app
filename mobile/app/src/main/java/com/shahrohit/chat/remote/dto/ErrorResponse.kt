@@ -1,4 +1,4 @@
-package com.shahrohit.chat.data.dto
+package com.shahrohit.chat.remote.dto
 
 data class ErrorResponse(
     val statusCode: Int,

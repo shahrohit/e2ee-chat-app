@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -22,11 +23,13 @@ import com.shahrohit.chat.R
 import com.shahrohit.chat.presentation.common.AppLink
 import com.shahrohit.chat.navigation.Screen
 import com.shahrohit.chat.ui.theme.AppTypography
+import com.shahrohit.chat.utils.DeviceFingerprint
 import com.shahrohit.chat.utils.PreferenceManager
 import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingScreen(navController: NavController){
+    val context = LocalContext.current
     val pages = listOf(
         OnboardingPage("Welcome!", "Secure and private messaging.", R.drawable.ic_secure),
         OnboardingPage("End-to-End Encryption", "Your messages are encrypted for safety.", R.drawable.ic_encryption),
@@ -44,6 +47,7 @@ fun OnboardingScreen(navController: NavController){
     }
 
     fun navigateToLogin() {
+        DeviceFingerprint.generate(context)
         PreferenceManager.setOnBoardingCompleted(true)
         navController.navigate(Screen.Login.route) {
             popUpTo(Screen.Onboarding.route) { inclusive = true }

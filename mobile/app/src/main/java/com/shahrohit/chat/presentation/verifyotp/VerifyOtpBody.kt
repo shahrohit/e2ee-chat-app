@@ -1,6 +1,5 @@
 package com.shahrohit.chat.presentation.verifyotp
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.isDigitsOnly
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.shahrohit.chat.enums.OtpFor
 import com.shahrohit.chat.navigation.Screen
 import com.shahrohit.chat.presentation.common.AppTextField
 import com.shahrohit.chat.presentation.common.showToast
@@ -39,7 +39,7 @@ import com.shahrohit.chat.utils.ApiRequestState
 import com.shahrohit.chat.viewmodels.VerifyOtpViewModel
 
 @Composable
-fun VerifyOtpBody(navController: NavController, email: String, username: String, viewModel: VerifyOtpViewModel = hiltViewModel()) {
+fun VerifyOtpBody(navController: NavController, email: String, username: String, otpFor : OtpFor, viewModel: VerifyOtpViewModel = hiltViewModel()) {
 
     val context = LocalContext.current;
 
@@ -48,17 +48,22 @@ fun VerifyOtpBody(navController: NavController, email: String, username: String,
     val focusRequester = remember { List(6) {FocusRequester()} }
     val localFocusManager = LocalFocusManager.current
 
+    fun handleSuccess(message : String){
+        navController.navigate(Screen.Connection.route){
+            popUpTo(0) { inclusive = true }
+            launchSingleTop = true
+        }
+        showToast(context, message)
+    }
+
+    fun handleError(message : String){
+        showToast(context, message)
+    }
+
     LaunchedEffect(verifyOtpState) {
         when (val currentState = verifyOtpState) {
-            is ApiRequestState.Success -> {
-                Log.d("CONSOLE", "VerifyBody: ${currentState.data}")
-                navController.navigate(Screen.Home.route){
-                    popUpTo(0) { inclusive = true }
-                    launchSingleTop = true
-                }
-                showToast(context,  currentState.data.message)
-            }
-            is ApiRequestState.Error -> showToast(context, currentState.message)
+            is ApiRequestState.Success -> handleSuccess(currentState.data.message)
+            is ApiRequestState.Error -> handleError(currentState.message)
             else -> {}
         }
     }
@@ -101,7 +106,7 @@ fun VerifyOtpBody(navController: NavController, email: String, username: String,
 
                         if(index == 5){
                             localFocusManager.clearFocus()
-                            viewModel.verifyOtp(username);
+                            viewModel.verifyOtp(context,username, otpFor);
                         }
                     },
                     modifier = Modifier.width(48.dp).height(56.dp)
@@ -116,7 +121,7 @@ fun VerifyOtpBody(navController: NavController, email: String, username: String,
                         },
                         onDone = {
                             localFocusManager.clearFocus()
-                            viewModel.verifyOtp(username)
+                            viewModel.verifyOtp(context, username, otpFor)
                         },
                     ),
                 )

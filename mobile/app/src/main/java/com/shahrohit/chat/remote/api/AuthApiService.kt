@@ -1,10 +1,11 @@
-package com.shahrohit.chat.data.api
+package com.shahrohit.chat.remote.api
 
-import com.shahrohit.chat.data.dto.AuthResponse
-import com.shahrohit.chat.data.dto.LoginRequest
-import com.shahrohit.chat.data.dto.RegisterRequest
-import com.shahrohit.chat.data.dto.UserAvailabilityResponse
-import com.shahrohit.chat.data.dto.VerifyOtpRequest
+import com.shahrohit.chat.remote.dto.AccessTokenRequest
+import com.shahrohit.chat.remote.dto.AuthResponse
+import com.shahrohit.chat.remote.dto.LoginRequest
+import com.shahrohit.chat.remote.dto.RegisterRequest
+import com.shahrohit.chat.remote.dto.UserAvailabilityResponse
+import com.shahrohit.chat.remote.dto.VerifyOtpRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -22,6 +23,12 @@ interface AuthApiService {
     suspend fun login(@Body request: LoginRequest) : AuthResponse
 
     @POST("auth/verify-otp")
-    suspend fun verifyOtp(@Body request: VerifyOtpRequest) : AuthResponse
+    suspend fun verifyUser(@Body request: VerifyOtpRequest) : AuthResponse
+
+    @POST("auth/verify-device")
+    suspend fun verifyDevice(@Body request: VerifyOtpRequest) : AuthResponse
+
+    @POST("auth/refresh-token")
+    suspend fun refreshAccessToken(@Body request: AccessTokenRequest) : AuthResponse
 }
 

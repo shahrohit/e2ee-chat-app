@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKeys
+import androidx.core.content.edit
 
 object PreferenceManager {
 
@@ -12,6 +13,7 @@ object PreferenceManager {
     private const val ACCESS_TOKEN_KEY = "access_token"
     private const val REFRESH_TOKEN_KEY = "refresh_token"
     private const val USERID_KEY = "user_id"
+    private const val DEVICE_FINGERPRINT_KEY = "device_fingerprint"
 
 
     private lateinit var prefs : SharedPreferences
@@ -27,28 +29,48 @@ object PreferenceManager {
         ) as EncryptedSharedPreferences;
     }
 
+    fun setDeviceFingerprint(fingerPrint: String) {
+        prefs.edit { putString(DEVICE_FINGERPRINT_KEY, fingerPrint) }
+    }
+
+    fun getDeviceFingerprint() : String? {
+        return prefs.getString(DEVICE_FINGERPRINT_KEY, null)
+    }
+
     fun setOnBoardingCompleted(value: Boolean){
-        prefs.edit().putBoolean(ONBOARDING_KEY,value).apply()
+        prefs.edit() { putBoolean(ONBOARDING_KEY, value) }
     }
 
     fun isOnBoardingCompleted() : Boolean {
         return prefs.getBoolean(ONBOARDING_KEY,false);
     }
 
-    fun setAccessToken(token: String) = prefs.edit().putString(ACCESS_TOKEN_KEY, token).apply()
+    fun saveToken(accessToken: String, refreshToken: String) {
+        prefs.edit() {
+            putString(ACCESS_TOKEN_KEY, accessToken).putString(
+                REFRESH_TOKEN_KEY,
+                refreshToken
+            )
+        }
+    }
+
     fun getAccessToken(): String? = prefs.getString(ACCESS_TOKEN_KEY, null)
-    fun setRefreshToken(token: String) = prefs.edit().putString(REFRESH_TOKEN_KEY, token).apply()
     fun getRefreshToken(): String? = prefs.getString(REFRESH_TOKEN_KEY, null)
 
-    fun setUserId(userId : Long)=  prefs.edit().putLong(USERID_KEY, userId).apply()
+    fun setUserId(userId : Long)=  prefs.edit() { putLong(USERID_KEY, userId) }
     fun getUserId(): Long? {
         val id = prefs.getLong(USERID_KEY, -1L)
         return if (id != -1L) id else null
     }
 
-    fun clearTokens(){
-        prefs.edit().remove(ACCESS_TOKEN_KEY).remove(REFRESH_TOKEN_KEY).apply()
+    fun isLoggedIn() : Boolean {
+        return getAccessToken() != null && getRefreshToken() != null
     }
 
-    fun clearAll() = prefs.edit().clear().apply()
+    fun clearTokens(){
+        prefs.edit() { remove(ACCESS_TOKEN_KEY).remove(REFRESH_TOKEN_KEY) }
+    }
+
+    fun clearAll() = prefs.edit() { clear() }
+
 }

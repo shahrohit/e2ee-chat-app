@@ -5,10 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shahrohit.chat.data.dto.ApiException
-import com.shahrohit.chat.data.dto.AuthResponse
-import com.shahrohit.chat.data.dto.RegisterRequest
-import com.shahrohit.chat.domain.repository.AuthRepository
+import com.shahrohit.chat.remote.dto.ApiException
+import com.shahrohit.chat.remote.dto.AuthResponse
+import com.shahrohit.chat.remote.dto.RegisterRequest
+import com.shahrohit.chat.remote.repository.AuthRepository
 import com.shahrohit.chat.utils.ApiRequestState
 import com.shahrohit.chat.utils.FormValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -105,6 +105,22 @@ class RegisterViewModel @Inject constructor(
         return listOf(nameError,usernameError,emailError,passwordError).all { it == null } && isUsernameAvailable == true
     }
 
+    private fun handleSuccess(response : AuthResponse){
+        registerState.value = ApiRequestState.Success(response)
+    }
+
+    private fun handleError(errResponse : Throwable){
+        if(errResponse is ApiException){
+            val errorMap = errResponse.errorData.orEmpty()
+            nameError = errorMap["name"]?.toString()
+            usernameError = errorMap["username"]?.toString()
+            emailError = errorMap["email"]?.toString()
+            passwordError = errorMap["password"]?.toString()
+            registerState.value = ApiRequestState.Error(errResponse.message ?: "Registration failed")
+        }else{
+            registerState.value = ApiRequestState.Error(errResponse.message ?: "Registration failed")
+        }
+    }
 
     fun register() {
         if(!validate()) return
@@ -112,26 +128,13 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             registerState.value = ApiRequestState.Loading
             try {
-                val request = RegisterRequest(name = name, email = email,username = username,password = password)
+                val request = RegisterRequest(name = name, email = email,username = username, password = password)
                 val result = repository.register(request)
 
-                result.onSuccess { response ->
-                    registerState.value = ApiRequestState.Success(response)
-                }.onFailure { errResponse ->
-                    if(errResponse is ApiException){
-                        val errorMap = errResponse.errorData.orEmpty()
-                        nameError = errorMap["name"]?.toString()
-                        usernameError = errorMap["username"]?.toString()
-                        emailError = errorMap["email"]?.toString()
-                        passwordError = errorMap["password"]?.toString()
-                        registerState.value = ApiRequestState.Error(errResponse.message ?: "Registration failed")
-                    }else{
-                        registerState.value = ApiRequestState.Error(errResponse.message ?: "Registration failed")
-                    }
-                }
+                result.onSuccess { handleSuccess(it) }
+                result.onFailure { handleError(it) }
 
-
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 registerState.value = ApiRequestState.Error("Internal Server Error")
             }
         }
