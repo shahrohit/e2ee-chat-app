@@ -1,4 +1,4 @@
-package com.shahrohit.chat.domain.repository.impl
+package com.shahrohit.chat.data.repository.impl
 
 import com.shahrohit.chat.data.api.AuthApiService
 import com.shahrohit.chat.data.dto.AuthResponse
@@ -6,7 +6,7 @@ import com.shahrohit.chat.data.dto.LoginRequest
 import com.shahrohit.chat.data.dto.RegisterRequest
 import com.shahrohit.chat.data.dto.UserAvailabilityResponse
 import com.shahrohit.chat.data.dto.VerifyOtpRequest
-import com.shahrohit.chat.domain.repository.AuthRepository
+import com.shahrohit.chat.data.repository.AuthRepository
 import com.shahrohit.chat.utils.ApiErrorHandler
 import retrofit2.HttpException
 import javax.inject.Inject

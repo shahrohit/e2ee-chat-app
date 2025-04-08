@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PublicKeyRequest {
-    @NotBlank(message = "Username is Required")
-    private String username;
+    private Long userId;
 
     @NotBlank(message = "Public Key is Required")
     private String publicKey;

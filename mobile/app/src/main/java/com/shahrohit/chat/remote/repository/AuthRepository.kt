@@ -1,4 +1,4 @@
-package com.shahrohit.chat.domain.repository
+package com.shahrohit.chat.data.repository
 
 import com.shahrohit.chat.data.dto.AuthResponse
 import com.shahrohit.chat.data.dto.LoginRequest

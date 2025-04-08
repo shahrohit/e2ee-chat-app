@@ -29,9 +29,8 @@ public class UserServiceImpl implements UserService {
         if(user.getPublicKey() == null || !user.getPublicKey().equals(request.getPublicKey())){
             user.setPublicKey(request.getPublicKey());
             userRepository.save(user);
-            return true;
         }
 
-        return false;
+        return true;
     }
 }

@@ -32,6 +32,22 @@ public class AuthServiceImpl implements AuthService {
     private final SessionService sessionService;
     private final PasswordEncoder passwordEncoder;
 
+    private AuthResponse getAuthResponse(User user, String deviceFingerprint) {
+        String accessToken = tokenService.generateAccessToken(user.getUsername());
+        String refreshToken = tokenService.generateRefreshToken();
+
+        sessionService.createSession(user, refreshToken, deviceFingerprint);
+
+        return AuthResponse.builder()
+            .accessToken(accessToken)
+            .refreshToken(refreshToken)
+            .user(userAdapter.toUserDto(user))
+            .status(AuthStatus.USER_VERIFIED.toString())
+            .message("Login Successfully")
+            .build();
+    }
+
+
     @Override
     public AuthResponse registerUser(RegisterRequest body) {
         if(userRepository.existsByEmail(body.getEmail())){
@@ -52,7 +68,8 @@ public class AuthServiceImpl implements AuthService {
             .accessToken(null)
             .refreshToken(null)
             .user(userAdapter.toUserDto(newUser))
-            .message(AuthStatus.USER_VERIFICATION_PENDING.toString())
+            .status(AuthStatus.USER_VERIFICATION_PENDING.toString())
+            .message("User Register Successfully")
             .build();
     }
 
@@ -78,17 +95,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEnabled(true);
         userRepository.save(user);
 
-        String accessToken = tokenService.generateAccessToken(user.getUsername());
-        String refreshToken = tokenService.generateRefreshToken();
-
-        sessionService.createSession(user, refreshToken,request.getDeviceFingerprint());
-
-        return AuthResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .user(userAdapter.toUserDto(user))
-            .message(AuthStatus.USER_VERIFIED.toString())
-            .build();
+        return getAuthResponse(user, request.getDeviceFingerprint());
     }
 
     @Override
@@ -106,7 +113,8 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(null)
                 .refreshToken(null)
                 .user(userAdapter.toUserDto(user))
-                .message(AuthStatus.USER_VERIFICATION_PENDING.toString())
+                .status(AuthStatus.USER_VERIFICATION_PENDING.toString())
+                .message("An OTP is sent to : " + user.getEmail())
                 .build();
         }
 
@@ -120,22 +128,13 @@ public class AuthServiceImpl implements AuthService {
                     .accessToken(null)
                     .refreshToken(null)
                     .user(userAdapter.toUserDto(user))
-                    .message(AuthStatus.DEVICE_VERIFICATION_PENDING.toString())
+                    .status(AuthStatus.DEVICE_VERIFICATION_PENDING.toString())
+                    .message("An OTP is send to : " + user.getEmail())
                     .build();
             }
         }
 
-        String accessToken = tokenService.generateAccessToken(user.getUsername());
-        String refreshToken = tokenService.generateRefreshToken();
-
-        sessionService.createSession(user, refreshToken, request.getDeviceFingerprint());
-
-        return AuthResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshToken)
-            .user(userAdapter.toUserDto(user))
-            .message(AuthStatus.USER_VERIFIED.toString())
-            .build();
+        return getAuthResponse(user, request.getDeviceFingerprint());
     }
 
     @Override
@@ -166,7 +165,8 @@ public class AuthServiceImpl implements AuthService {
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .user(userAdapter.toUserDto(user))
-            .message(AuthStatus.DEVICE_VERIFIED.toString())
+            .status(AuthStatus.DEVICE_VERIFIED.toString())
+            .message("User verified")
             .build();
     }
 
@@ -195,7 +195,8 @@ public class AuthServiceImpl implements AuthService {
             .accessToken(accessToken)
             .refreshToken(refreshToken)
             .user(userAdapter.toUserDto(user))
-            .message(AuthStatus.USER_VERIFIED.toString())
+            .status(AuthStatus.USER_VERIFIED.toString())
+            .message("User Verified")
             .build();
     }
 }

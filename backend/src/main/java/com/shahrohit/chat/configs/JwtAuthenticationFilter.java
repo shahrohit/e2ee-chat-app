@@ -1,7 +1,6 @@
 package com.shahrohit.chat.configs;
 
 import com.shahrohit.chat.utils.JwtUtil;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
             if(isProtectedRoute(request)){
-                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized: Token is missing");
+                sendErrorResponse(response, "Unauthorized: Token is missing");
                 return;
             }
             filterChain.doFilter(request,response);
@@ -45,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try{
             String username = jwtUtil.extractSubject(token);
             if(username == null){
-                sendErrorResponse(response,HttpServletResponse.SC_BAD_REQUEST, "Invalid JWT token");
+                sendErrorResponse(response, "Invalid JWT token");
                 return;
             }
 
@@ -58,23 +57,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
 
-        }catch (JwtException e){
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid or expired JWT token");
-            return;
-        }catch (Exception e){
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("Something went wrong");
+        } catch (Exception e){
+            sendErrorResponse(response, "Unauthorized");
             return;
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
-        response.setStatus(status);
+    private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        response.getWriter().write("{\"error\": \"" + message + "\"}");
+        String jsonStr = "{\"statusCode\": \"" + HttpServletResponse.SC_UNAUTHORIZED + "\", \"message\": \"" + message + "\", \"errorData\": null}";;
+        response.getWriter().write(jsonStr);
     }
     private boolean isProtectedRoute(HttpServletRequest request) {
         String path = request.getRequestURI();
