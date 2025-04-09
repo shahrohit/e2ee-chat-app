@@ -1,6 +1,5 @@
 package com.shahrohit.chat.navigation
 
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -44,7 +43,6 @@ fun AppNavigation (navController: NavHostController, modifier: Modifier){
     NavHost(navController = navController, startDestination = startDestination, modifier = modifier){
         composable(Screen.Onboarding.route) { OnboardingScreen(navController) }
         composable(Screen.Login.route) { LoginScreen(navController) }
-        composable(Screen.Home.route) { HomeScreen(navController) }
         composable(Screen.Register.route) { RegisterScreen(navController) }
         composable(Screen.Connection.route) { ConnectionScreen(navController) }
         composable(
@@ -68,5 +66,8 @@ fun AppNavigation (navController: NavHostController, modifier: Modifier){
                 VerifyOtpScreen(navController, email, username, otpFor)
             }
         }
+
+        composable(Screen.Home.route) { HomeScreen() }
+
     }
 }

@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.shahrohit.chat.navigation.Screen
-import kotlinx.coroutines.delay
 
 @Composable
 fun ConnectionScreen(navController: NavController, viewModel: ConnectionViewModel = hiltViewModel()){

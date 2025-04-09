@@ -10,3 +10,11 @@ sealed class Screen(val route : String) {
     }
     data object Connection : Screen("connection")
 }
+
+sealed class HomeTab(val route: String){
+    data object Chat : HomeTab("chat")
+    data object Friends : HomeTab("friends")
+    data object Call : HomeTab("call")
+    data object Profile : HomeTab("profile")
+
+}
