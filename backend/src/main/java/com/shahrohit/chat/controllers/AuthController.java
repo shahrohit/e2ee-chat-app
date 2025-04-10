@@ -59,8 +59,6 @@ public class AuthController {
             .message(message)
             .build();
 
-
-
         return ResponseEntity.ok(response);
     }
 }

@@ -22,12 +22,12 @@ public class UserServiceImpl implements UserService {
         Session session = sessionService.getSession(user)
             .orElseThrow(()-> new RuntimeException("Unauthorized: Please Login again"));
 
-        if(!session.getDeviceFingerprint().equals(request.getDeviceFingerprint())){
+        if(!session.getDeviceFingerprint().equals(request.deviceFingerprint())){
             throw new RuntimeException("Unauthorized: Invalid Device");
         }
 
-        if(user.getPublicKey() == null || !user.getPublicKey().equals(request.getPublicKey())){
-            user.setPublicKey(request.getPublicKey());
+        if(user.getPublicKey() == null || !user.getPublicKey().equals(request.publicKey())){
+            user.setPublicKey(request.publicKey());
             userRepository.save(user);
         }
 

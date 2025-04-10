@@ -23,7 +23,7 @@ public class UserController {
         @Valid @RequestBody PublicKeyRequest body,
         @AuthenticationPrincipal User authUser
     ){
-       if(!authUser.getId().equals(body.getUserId())){
+       if(!authUser.getId().equals(body.userId())){
            throw new RuntimeException("Unauthorized Access");
        }
        boolean uploaded = userService.uploadPublicKey(body, authUser);

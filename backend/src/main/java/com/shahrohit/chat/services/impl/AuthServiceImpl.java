@@ -1,10 +1,8 @@
 package com.shahrohit.chat.services.impl;
 
-import com.shahrohit.chat.adapters.UserAdapter;
 import com.shahrohit.chat.dtos.*;
 import com.shahrohit.chat.enums.AuthStatus;
 import com.shahrohit.chat.enums.OtpType;
-import com.shahrohit.chat.exceptions.BadRequest;
 import com.shahrohit.chat.exceptions.Conflict;
 import com.shahrohit.chat.exceptions.Forbidden;
 import com.shahrohit.chat.exceptions.NotFound;
@@ -26,7 +24,6 @@ import java.util.Optional;
 public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
-    private final UserAdapter userAdapter;
     private final OtpService otpService;
     private final TokenService tokenService;
     private final SessionService sessionService;
@@ -41,7 +38,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
-            .user(userAdapter.toUserDto(user))
+            .user(UserDto.fromUser(user))
             .status(AuthStatus.USER_VERIFIED.toString())
             .message("Login Successfully")
             .build();
@@ -49,17 +46,17 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public AuthResponse registerUser(RegisterRequest body) {
-        if(userRepository.existsByEmail(body.getEmail())){
+    public AuthResponse registerUser(RegisterRequest request) {
+        if(userRepository.existsByEmail(request.email())){
             throw new Conflict("Email is Already Taken");
         }
 
-        if(userRepository.existsByUsername(body.getUsername())){
+        if(userRepository.existsByUsername(request.username())){
             throw new Conflict("Username is Already Taken");
         }
 
-        User newUser = userAdapter.toUser(body);
-        newUser.setPassword(passwordEncoder.encode(body.getPassword()));
+        User newUser = request.toUser();
+        newUser.setPassword(passwordEncoder.encode(request.password()));
         userRepository.save(newUser);
 
         otpService.sendOtp(newUser, OtpType.NEW_ACCOUNT_VERIFICATION);
@@ -67,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
         return AuthResponse.builder()
             .accessToken(null)
             .refreshToken(null)
-            .user(userAdapter.toUserDto(newUser))
+            .user(UserDto.fromUser(newUser))
             .status(AuthStatus.USER_VERIFICATION_PENDING.toString())
             .message("User Register Successfully")
             .build();
@@ -75,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse verifyOtp(VerifyOtpRequest request) {
-        Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
+        Optional<User> userOptional = userRepository.findByUsername(request.username());
         if(userOptional.isEmpty()){
             throw new NotFound("User Not Found");
         }
@@ -86,7 +83,7 @@ public class AuthServiceImpl implements AuthService {
             throw new Forbidden("User Already Verified");
         }
 
-        boolean isVerified = otpService.verifyOtp(user,request.getOtp(), OtpType.NEW_ACCOUNT_VERIFICATION);
+        boolean isVerified = otpService.verifyOtp(user,request.otp(), OtpType.NEW_ACCOUNT_VERIFICATION);
 
         if(!isVerified){
             throw new Forbidden("Invalid User or OTP");
@@ -95,15 +92,15 @@ public class AuthServiceImpl implements AuthService {
         user.setEnabled(true);
         userRepository.save(user);
 
-        return getAuthResponse(user, request.getDeviceFingerprint());
+        return getAuthResponse(user, request.deviceFingerprint());
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmailOrUsername(request.getIdentifier(), request.getIdentifier())
+        User user = userRepository.findByEmailOrUsername(request.identifier(), request.identifier())
             .orElseThrow(() -> new Forbidden("Invalid Credentials"));
 
-        if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
+        if(!passwordEncoder.matches(request.password(), user.getPassword())){
             throw new Forbidden("Invalid Credentials");
         }
 
@@ -112,7 +109,7 @@ public class AuthServiceImpl implements AuthService {
             return AuthResponse.builder()
                 .accessToken(null)
                 .refreshToken(null)
-                .user(userAdapter.toUserDto(user))
+                .user(UserDto.fromUser(user))
                 .status(AuthStatus.USER_VERIFICATION_PENDING.toString())
                 .message("An OTP is sent to : " + user.getEmail())
                 .build();
@@ -122,24 +119,24 @@ public class AuthServiceImpl implements AuthService {
 
         if(existingSession.isPresent()){
             Session currentSession = existingSession.get();
-            if(!currentSession.getDeviceFingerprint().equals(request.getDeviceFingerprint())){
+            if(!currentSession.getDeviceFingerprint().equals(request.deviceFingerprint())){
                 otpService.sendOtp(user, OtpType.NEW_DEVICE_VERIFICATION);
                 return AuthResponse.builder()
                     .accessToken(null)
                     .refreshToken(null)
-                    .user(userAdapter.toUserDto(user))
+                    .user(UserDto.fromUser(user))
                     .status(AuthStatus.DEVICE_VERIFICATION_PENDING.toString())
                     .message("An OTP is send to : " + user.getEmail())
                     .build();
             }
         }
 
-        return getAuthResponse(user, request.getDeviceFingerprint());
+        return getAuthResponse(user, request.deviceFingerprint());
     }
 
     @Override
     public AuthResponse verifyNewDevice(VerifyOtpRequest request) {
-        Optional<User> userOptional = userRepository.findByUsername(request.getUsername());
+        Optional<User> userOptional = userRepository.findByUsername(request.username());
         if(userOptional.isEmpty()){
             throw new NotFound("User Not Found");
         }
@@ -150,7 +147,7 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("User Not Verified");
         }
 
-        boolean isVerified = otpService.verifyOtp(user, request.getOtp(), OtpType.NEW_DEVICE_VERIFICATION);
+        boolean isVerified = otpService.verifyOtp(user, request.otp(), OtpType.NEW_DEVICE_VERIFICATION);
 
         if(!isVerified){
             throw new RuntimeException("Invalid OTP");
@@ -159,12 +156,12 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = tokenService.generateAccessToken(user.getUsername());
         String refreshToken = tokenService.generateRefreshToken();
 
-        sessionService.createSession(user, refreshToken, request.getDeviceFingerprint());
+        sessionService.createSession(user, refreshToken, request.deviceFingerprint());
 
         return AuthResponse.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
-            .user(userAdapter.toUserDto(user))
+            .user(UserDto.fromUser(user))
             .status(AuthStatus.DEVICE_VERIFIED.toString())
             .message("User verified")
             .build();
@@ -177,10 +174,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse refreshAccessToken(AccessTokenRequest request) {
-       Session session = sessionService.getSessionFromRefreshToken(request.getRefreshToken())
+       Session session = sessionService.getSessionFromRefreshToken(request.refreshToken())
            .orElseThrow(() -> new RuntimeException("Unauthorized: Invalid Token"));
 
-       if(!session.getDeviceFingerprint().equals(request.getDeviceFingerprint())){
+       if(!session.getDeviceFingerprint().equals(request.deviceFingerprint())){
            throw new RuntimeException("Unauthorized: Invalid Request");
        }
 
@@ -188,13 +185,13 @@ public class AuthServiceImpl implements AuthService {
        String accessToken = tokenService.generateAccessToken(user.getUsername());
        String refreshToken = tokenService.generateRefreshToken();
 
-       sessionService.createSession(user, refreshToken, request.getDeviceFingerprint());
+       sessionService.createSession(user, refreshToken, request.deviceFingerprint());
 
 
         return AuthResponse.builder()
             .accessToken(accessToken)
             .refreshToken(refreshToken)
-            .user(userAdapter.toUserDto(user))
+            .user(UserDto.fromUser(user))
             .status(AuthStatus.USER_VERIFIED.toString())
             .message("User Verified")
             .build();

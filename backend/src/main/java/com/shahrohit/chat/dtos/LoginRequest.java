@@ -1,18 +1,14 @@
 package com.shahrohit.chat.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class LoginRequest {
+public record LoginRequest(
     @NotBlank(message = "Email or username is Required")
-    private String identifier;
+    String identifier,
 
     @NotBlank(message = "Password is Required")
-    private String password;
+    String password,
 
     @NotBlank(message = "Device is Required")
-    private String deviceFingerprint;
-}
+    String deviceFingerprint
+){}
