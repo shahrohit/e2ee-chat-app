@@ -3,8 +3,8 @@ package com.shahrohit.chat.utils
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKeys
 import androidx.core.content.edit
+import androidx.security.crypto.MasterKey
 
 object PreferenceManager {
 
@@ -19,14 +19,22 @@ object PreferenceManager {
     private lateinit var prefs : SharedPreferences
 
     fun init(context : Context) {
-        val masterKeyAlias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
-        prefs = EncryptedSharedPreferences.create(
-            PREF_NAME,
-            masterKeyAlias,
-            context,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        ) as EncryptedSharedPreferences;
+        try {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+
+            prefs = EncryptedSharedPreferences.create(
+                context,
+                PREF_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        } catch (_: Exception) {
+            context.deleteSharedPreferences(PREF_NAME)
+            init(context)
+        }
     }
 
     fun setDeviceFingerprint(fingerPrint: String) {
