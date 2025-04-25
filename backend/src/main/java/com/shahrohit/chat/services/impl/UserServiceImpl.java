@@ -1,6 +1,7 @@
 package com.shahrohit.chat.services.impl;
 
 import com.shahrohit.chat.dtos.PublicKeyRequest;
+import com.shahrohit.chat.dtos.UserProfile;
 import com.shahrohit.chat.models.Session;
 import com.shahrohit.chat.models.User;
 import com.shahrohit.chat.repositories.UserRepository;
@@ -9,6 +10,7 @@ import com.shahrohit.chat.services.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -32,5 +34,10 @@ public class UserServiceImpl implements UserService {
         }
 
         return true;
+    }
+
+    @Override
+    public List<UserProfile> searchUsers(String query) {
+        return userRepository.searchUser(query);
     }
 }
