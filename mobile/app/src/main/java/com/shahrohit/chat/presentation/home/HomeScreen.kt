@@ -10,6 +10,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.shahrohit.chat.navigation.BottomBar
 import com.shahrohit.chat.navigation.HomeTab
 import com.shahrohit.chat.presentation.call.CallScreen
@@ -19,8 +21,8 @@ import com.shahrohit.chat.presentation.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(){
-    val pages = listOf(HomeTab.Chat, HomeTab.Friends, HomeTab.Call, HomeTab.Profile)
+fun HomeScreen(navController: NavHostController){
+    val pages = listOf(HomeTab.Chat, HomeTab.Call, HomeTab.Friends, HomeTab.Profile)
     val pagerState = rememberPagerState {
         pages.size
     }
@@ -48,8 +50,8 @@ fun HomeScreen(){
         ) { page ->
             when (pages[page]) {
                 is HomeTab.Chat -> ChatScreen()
-                is HomeTab.Friends -> FriendsScreen()
                 is HomeTab.Call -> CallScreen()
+                is HomeTab.Friends -> FriendsScreen(navController)
                 is HomeTab.Profile -> ProfileScreen()
             }
         }

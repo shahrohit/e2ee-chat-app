@@ -7,8 +7,8 @@ import androidx.compose.material.icons.filled.ChatBubble
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Call
-import androidx.compose.material.icons.outlined.ChatBubble
-import androidx.compose.material.icons.outlined.People
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.PeopleOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -49,8 +49,8 @@ fun BottomBar(
             val selected = selectedIndex == index
 
             val icon = when (screen) {
-                is HomeTab.Chat -> if (selected) Icons.Filled.ChatBubble else Icons.Outlined.ChatBubble
-                is HomeTab.Friends -> if (selected) Icons.Filled.People else Icons.Outlined.People
+                is HomeTab.Chat -> if (selected) Icons.Filled.ChatBubble else Icons.Outlined.ChatBubbleOutline
+                is HomeTab.Friends -> if (selected) Icons.Filled.People else Icons.Outlined.PeopleOutline
                 is HomeTab.Call -> if (selected) Icons.Filled.Call else Icons.Outlined.Call
                 is HomeTab.Profile -> if (selected) Icons.Filled.AccountCircle else Icons.Outlined.AccountCircle
             }

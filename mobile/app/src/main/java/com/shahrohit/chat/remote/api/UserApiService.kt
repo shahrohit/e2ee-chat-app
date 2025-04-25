@@ -3,9 +3,11 @@ package com.shahrohit.chat.remote.api
 import com.shahrohit.chat.remote.dto.PingResponse
 import com.shahrohit.chat.remote.dto.PublicKeyRequest
 import com.shahrohit.chat.remote.dto.UploadKeyResponse
+import com.shahrohit.chat.remote.dto.UserProfile
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface UserApiService {
     @POST("users/keys")
@@ -13,4 +15,7 @@ interface UserApiService {
 
     @POST("users/ping")
     suspend fun pingUser() : PingResponse
+
+    @GET("users/search/{query}")
+    suspend fun searchUsers(@Path("query") query : String) : List<UserProfile>
 }

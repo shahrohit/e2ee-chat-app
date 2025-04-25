@@ -21,7 +21,7 @@ class TokenAuthenticator(
             return null
         }
 
-        return response.request().newBuilder()
+        return response.request.newBuilder()
             .header("Authorization", "Bearer $newAccessToken")
             .build()
     }
@@ -50,9 +50,9 @@ class TokenAuthenticator(
     private fun responseCount(response: Response): Int {
         var count = 1
         var current = response
-        while (current.priorResponse() != null) {
+        while (current.priorResponse != null) {
             count++
-            current = current.priorResponse()!!
+            current = current.priorResponse!!
         }
         return count
     }

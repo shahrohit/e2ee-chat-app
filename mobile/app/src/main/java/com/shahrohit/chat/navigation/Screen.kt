@@ -9,6 +9,7 @@ sealed class Screen(val route : String) {
         fun createRoute(email: String, username: String, otpFor: String) : String = "verify-otp/$email/$username/$otpFor"
     }
     data object Connection : Screen("connection")
+    data object SearchFriend : Screen("search-friend")
 }
 
 sealed class HomeTab(val route: String){

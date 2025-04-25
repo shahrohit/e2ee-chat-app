@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.shahrohit.chat.enums.OtpFor
 import com.shahrohit.chat.presentation.common.showToast
 import com.shahrohit.chat.presentation.connection.ConnectionScreen
+import com.shahrohit.chat.presentation.friends.SearchFriendScreen
 import com.shahrohit.chat.presentation.home.HomeScreen
 import com.shahrohit.chat.presentation.login.LoginScreen
 import com.shahrohit.chat.presentation.onboarding.OnboardingScreen
@@ -67,7 +68,8 @@ fun AppNavigation (navController: NavHostController, modifier: Modifier){
             }
         }
 
-        composable(Screen.Home.route) { HomeScreen() }
+        composable(Screen.Home.route) { HomeScreen(navController) }
+        composable(Screen.SearchFriend.route) { SearchFriendScreen() }
 
     }
 }
