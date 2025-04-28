@@ -35,10 +35,11 @@ public class UserController {
     }
 
     @GetMapping("/search/{query}")
-    public ResponseEntity<List<UserProfile>> searchUsers(@PathVariable String query){
-        System.out.println("Searching for " + query);
-
-        List<UserProfile> users = userService.searchUsers(query);
+    public ResponseEntity<List<UserProfile>> searchUsers(
+        @PathVariable String query,
+        @AuthenticationPrincipal User authUser
+    ){
+        List<UserProfile> users = userService.searchUsers(query, authUser.getId());
         return ResponseEntity.ok(users);
     }
 

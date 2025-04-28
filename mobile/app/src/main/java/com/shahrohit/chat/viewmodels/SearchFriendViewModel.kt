@@ -21,7 +21,10 @@ class FriendViewModel @Inject constructor(
     var query by mutableStateOf("")
     var users by mutableStateOf<List<UserProfile>>(emptyList())
 
+    var requestSent by mutableStateOf(false)
+
     var checkingStatus by mutableStateOf<Boolean?>(null)
+    var addFriendLoading by mutableStateOf(false)
 
     private var debounceJob: Job? = null
     fun onQueryChange(newQuery : String){
@@ -50,6 +53,19 @@ class FriendViewModel @Inject constructor(
 
             checkingStatus = false
 
+        }
+    }
+
+    fun sendFriendRequest(username : String){
+        viewModelScope.launch {
+            addFriendLoading = true
+            val result = repository.sendFriendRequest(username)
+            result.onSuccess {
+                requestSent = it
+
+            }
+            result.onFailure { Log.d("CONSOLE", it.message.toString()) }
+            addFriendLoading = false
         }
     }
 }

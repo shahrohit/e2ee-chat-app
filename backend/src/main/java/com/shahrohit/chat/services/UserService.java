@@ -9,5 +9,5 @@ import java.util.List;
 public interface UserService {
 
     boolean uploadPublicKey(PublicKeyRequest request, User user);
-    List<UserProfile> searchUsers(String query);
+    List<UserProfile> searchUsers(String query, Long userId);
 }
