@@ -2,6 +2,7 @@ package com.shahrohit.chat.viewmodels
 
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class FriendViewModel @Inject constructor(
+class SearchFriendViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
     var query by mutableStateOf("")
@@ -25,6 +26,9 @@ class FriendViewModel @Inject constructor(
 
     var checkingStatus by mutableStateOf<Boolean?>(null)
     var addFriendLoading by mutableStateOf(false)
+
+    var itemLoadingState = mutableStateMapOf<String, Boolean>()
+
 
     private var debounceJob: Job? = null
     fun onQueryChange(newQuery : String){
@@ -58,14 +62,16 @@ class FriendViewModel @Inject constructor(
 
     fun sendFriendRequest(username : String){
         viewModelScope.launch {
-            addFriendLoading = true
+            itemLoadingState[username] = true
             val result = repository.sendFriendRequest(username)
             result.onSuccess {
                 requestSent = it
-
+                users = users.map {
+                    if(it.username == username) it.copy(responseMessage = "Request Sent") else it
+                }
             }
             result.onFailure { Log.d("CONSOLE", it.message.toString()) }
-            addFriendLoading = false
+            itemLoadingState[username] = false
         }
     }
 }

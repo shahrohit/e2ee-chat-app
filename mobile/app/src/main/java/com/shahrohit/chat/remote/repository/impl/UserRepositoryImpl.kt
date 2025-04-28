@@ -1,6 +1,5 @@
 package com.shahrohit.chat.remote.repository.impl
 
-import androidx.room.util.query
 import com.shahrohit.chat.remote.api.UserApiService
 import com.shahrohit.chat.remote.dto.PingResponse
 import com.shahrohit.chat.remote.dto.PublicKeyRequest
@@ -39,6 +38,72 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun searchUser(query : String): Result<List<UserProfile>> {
         return try {
             val response = api.searchUsers(query);
+            Result.success(response)
+        } catch (e : HttpException){
+            Result.failure(ApiErrorHandler.parseHttpException(e))
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun sendFriendRequest(username: String): Result<Boolean> {
+        return try {
+            val response = api.sendFriendRequest(username);
+            Result.success(response)
+        } catch (e : HttpException){
+            Result.failure(ApiErrorHandler.parseHttpException(e))
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getReceivedFriendRequests(): Result<List<UserProfile>> {
+        return try {
+            val response = api.getReceivedFriendRequests();
+            Result.success(response)
+        } catch (e : HttpException){
+            Result.failure(ApiErrorHandler.parseHttpException(e))
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getSentFriendRequests(): Result<List<UserProfile>> {
+        return try {
+            val response = api.getSentFriendRequests();
+            Result.success(response)
+        } catch (e : HttpException){
+            Result.failure(ApiErrorHandler.parseHttpException(e))
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun responseToFriendRequest(username: String, accepted: Boolean): Result<Boolean> {
+        return try {
+            val response = api.respondToFriendRequest(username, accepted);
+            Result.success(response)
+        } catch (e : HttpException){
+            Result.failure(ApiErrorHandler.parseHttpException(e))
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun cancelFriendRequest(username: String): Result<Boolean> {
+        return try {
+            val response = api.cancelFriendRequest(username);
+            Result.success(response)
+        } catch (e : HttpException){
+            Result.failure(ApiErrorHandler.parseHttpException(e))
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getFriends(): Result<List<UserProfile>> {
+        return try {
+            val response = api.getFriends();
             Result.success(response)
         } catch (e : HttpException){
             Result.failure(ApiErrorHandler.parseHttpException(e))

@@ -8,7 +8,7 @@ object AuthManager {
     val authFailed: SharedFlow<Unit> = _authFailed
 
     fun notifyAuthFailure(){
-        PreferenceManager.clearAll()
+        PreferenceManager.clearTokens()
         _authFailed.tryEmit(Unit)
     }
 }

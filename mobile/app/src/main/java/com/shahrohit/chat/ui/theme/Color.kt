@@ -16,7 +16,7 @@ val Surface = Color(0xFFE2E2E2)
 val OnSurface = Color(0xFF3C3C3C)
 
 // Dark Mode Color
-val DarkPrimary = Color(0xFF1A75FF)
+val DarkPrimary = Color(0xFF156EF8)
 val DarkOnPrimary = Color(0xFFFFFFFF)
 
 val DarkSecondary = Color(0x501A75FF)

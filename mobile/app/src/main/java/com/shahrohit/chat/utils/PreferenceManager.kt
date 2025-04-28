@@ -19,6 +19,7 @@ object PreferenceManager {
     private lateinit var prefs : SharedPreferences
 
     fun init(context : Context) {
+        if(::prefs.isInitialized) return;
         try {
             val masterKey = MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -76,7 +77,7 @@ object PreferenceManager {
     }
 
     fun clearTokens(){
-        prefs.edit() { remove(ACCESS_TOKEN_KEY).remove(REFRESH_TOKEN_KEY) }
+        prefs.edit { remove(ACCESS_TOKEN_KEY).remove(REFRESH_TOKEN_KEY) }
     }
 
     fun clearAll() = prefs.edit() { clear() }
